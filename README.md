@@ -1,14 +1,19 @@
-# PDF Contact Number Extractor
+# PDF & Word Contact Number Extractor
 
-A web application that extracts contact numbers from PDF files and generates a new PDF with the extracted numbers.
+A web application that extracts contact numbers from PDF and Word files and generates a new PDF with the extracted numbers.
 
 ## Features
 
-- 📱 Extract phone numbers from PDF documents
+- 📱 Extract phone numbers from PDF and Word documents (.pdf, .doc, .docx)
 - 🔍 Support for multiple Indian phone number formats
 - 📄 Generate a new PDF with extracted contact numbers
-- 💻 Frontend-only PDF processing (no server upload required)
+- 💻 Frontend-only processing (no server upload required)
 - 🎨 Beautiful, responsive UI with drag-and-drop support
+
+## Supported File Formats
+
+- **PDF** (.pdf)
+- **Word** (.doc, .docx)
 
 ## Supported Phone Number Formats
 
@@ -20,8 +25,8 @@ A web application that extracts contact numbers from PDF files and generates a n
 
 ## How to Use
 
-1. **Upload PDF**: Drag and drop your PDF file or click to browse
-2. **Extract Numbers**: Click "Extract Contact Numbers" to process the PDF
+1. **Upload File**: Drag and drop your PDF or Word file or click to browse
+2. **Extract Numbers**: Click "Extract Contact Numbers" to process the file
 3. **Download Results**: Click "Download PDF" to get a new PDF with all extracted numbers
 
 ## Installation & Setup
@@ -58,9 +63,10 @@ npm start
 
 ## Technology Stack
 
-- **Frontend**: React.js, PDF.js, PDF-lib
+- **Frontend**: React.js, PDF.js, PDF-lib, Mammoth.js
 - **Backend**: Node.js, Express.js, Multer
 - **PDF Processing**: Client-side using PDF.js and PDF-lib
+- **Word Processing**: Client-side using Mammoth.js
 
 ## File Structure
 
@@ -78,8 +84,9 @@ npm start
 
 ## Features in Detail
 
-### PDF Processing
+### File Processing
 - Uses PDF.js to extract text from PDF pages
+- Uses Mammoth.js to extract text from Word documents
 - Regex patterns to identify phone numbers
 - Cleans and validates extracted numbers
 - Removes duplicates and sorts results
@@ -105,7 +112,7 @@ npm start
 
 ## Notes
 
-- All PDF processing happens in the browser for privacy
+- All file processing happens in the browser for privacy
 - No files are permanently stored on the server
-- Supports PDFs with text content (not scanned images)
+- Supports PDF and Word files with text content (not scanned images)
 - Optimized for Indian phone number formats

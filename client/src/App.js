@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import mammoth from 'mammoth';
 
 // Set up PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
@@ -26,13 +27,19 @@ function App() {
     ];
 
     const handleFileSelect = (selectedFile) => {
-        if (selectedFile && selectedFile.type === 'application/pdf') {
+        const validTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ];
+
+        if (selectedFile && validTypes.includes(selectedFile.type)) {
             setFile(selectedFile);
             setError('');
             setSuccess('');
             setExtractedContacts([]);
         } else {
-            setError('Please select a valid PDF file');
+            setError('Please select a valid PDF or Word file (.pdf, .doc, .docx)');
         }
     };
 
@@ -55,7 +62,7 @@ function App() {
 
     const extractContactNumbers = async () => {
         if (!file) {
-            setError('Please select a PDF file first');
+            setError('Please select a PDF or Word file first');
             return;
         }
 
@@ -64,16 +71,29 @@ function App() {
         setSuccess('');
 
         try {
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
             let allText = '';
 
-            // Extract text from all pages
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const textContent = await page.getTextContent();
-                const pageText = textContent.items.map(item => item.str).join(' ');
-                allText += pageText + ' ';
+            // Check file type and extract text accordingly
+            if (file.type === 'application/pdf') {
+                // Extract from PDF
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+
+                // Extract text from all pages
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    allText += pageText + ' ';
+                }
+            } else if (
+                file.type === 'application/msword' ||
+                file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ) {
+                // Extract from Word document
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                allText = result.value;
             }
 
             // Extract phone numbers using multiple patterns
@@ -107,10 +127,10 @@ function App() {
             if (contactArray.length > 0) {
                 setSuccess(`Found ${contactArray.length} contact numbers!`);
             } else {
-                setError('No contact numbers found in the PDF');
+                setError('No contact numbers found in the file');
             }
         } catch (err) {
-            setError('Error processing PDF: ' + err.message);
+            setError('Error processing file: ' + err.message);
         } finally {
             setLoading(false);
         }
@@ -153,7 +173,7 @@ function App() {
                     yPosition = height - 50;
                 }
 
-                page.drawText(`${contactIndex} --- ${contact}`, {
+                page.drawText(`${contact}`, {
                     x: 50,
                     y: yPosition,
                     size: 12,
@@ -190,8 +210,8 @@ function App() {
         <div className="container">
             <div className="main-layout">
                 <div className="card">
-                    <h1 className="title">📱 PDF Contact Extractor</h1>
-                    <p className="subtitle">Upload a PDF to extract contact numbers and generate a new PDF</p>
+                    <h1 className="title">📱 PDF & Word Contact Extractor</h1>
+                    <p className="subtitle">Upload a PDF or Word file to extract contact numbers and generate a new PDF</p>
 
                     <div
                         className={`upload-area ${dragOver ? 'dragover' : ''}`}
@@ -202,12 +222,12 @@ function App() {
                     >
                         <div className="upload-icon">📄</div>
                         <div className="upload-text">
-                            {file ? file.name : 'Drag and drop your PDF here or click to browse'}
+                            {file ? file.name : 'Drag and drop your PDF or Word file here or click to browse'}
                         </div>
                         <input
                             ref={fileInputRef}
                             type="file"
-                            accept=".pdf"
+                            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                             onChange={(e) => handleFileSelect(e.target.files[0])}
                             className="file-input"
                         />
@@ -263,7 +283,7 @@ function App() {
                     <div className="instruction-steps">
                         <div className="step">
                             <div className="step-number">1</div>
-                            <div className="step-text">Upload PDF</div>
+                            <div className="step-text">Upload PDF or Word file</div>
                         </div>
                         <div className="step">
                             <div className="step-number">2</div>
