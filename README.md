@@ -30,20 +30,31 @@ A web application that extracts contact numbers from PDF files and generates a n
 - Node.js (v14 or higher)
 - npm
 
-### Backend Setup
+### Quick Start (Recommended)
 ```bash
+# Install all dependencies
 npm install
+npm run install-client
+
+# Start both backend and frontend together
 npm start
 ```
-Server will run on http://localhost:5000
 
-### Frontend Setup
+This will start:
+- Backend server on http://localhost:5000
+- React frontend on http://localhost:3000
+
+### Manual Setup (Alternative)
 ```bash
+# Backend only
+npm install
+npm run server
+
+# Frontend only (in separate terminal)
 cd client
 npm install
 npm start
 ```
-React app will run on http://localhost:3000
 
 ## Technology Stack
 
